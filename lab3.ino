@@ -1,39 +1,22 @@
-int btns[] = { 4, 0, 2, 15 };
-// int btns[] = { 34, 35, 36, 39 };
+#include <TM1637Display.h>
 
-// int sevenSeg[] = { 7, 5, 13, 12, 14, 2, 0 };
+#define CLK 22
+#define DIO 23
+
+TM1637Display display = TM1637Display(CLK, DIO);
+
+int btns[] = { 4, 0, 2, 15 };
+
 int leds[] = { 32, 33, 27, 14 };
 int isWinner[] = { 13, 12 };
 int buzzer = 26;
 
-// byte sevenSegDigits[10][7] = { {
-//                                  0,
-//                                  0,
-//                                  0,
-//                                  0,
-//                                  0,
-//                                  0,
-//                                  1,
-//                                },                          //0
-//                                { 1, 0, 0, 1, 1, 1, 1 },    //1
-//                                { 0, 0, 1, 0, 0, 1, 0 },    //2
-//                                { 0, 0, 0, 0, 1, 1, 0 },    //3
-//                                { 1, 0, 0, 1, 1, 0, 0 },    //4
-//                                { 0, 1, 0, 0, 1, 0, 0 },    //5
-//                                { 0, 1, 0, 0, 0, 0, 0 },    //6
-//                                { 0, 0, 0, 1, 1, 1, 1 },    //7
-//                                { 0, 0, 0, 0, 0, 0, 0 },    //8
-//                                { 0, 0, 0, 1, 1, 0, 0 } };  //9
-//	{{1, 1, 1, 1, 1, 1, 0},0
-//	{0, 1, 1, 0, 0, 0, 0},1
-//	{1, 1, 0, 1, 1, 0, 1},2
-//   {1, 1, 1, 1, 0, 0, 1},3
-//   {0, 1, 1, 0, 0, 1, 1},4
-//   {1, 0, 1, 1, 0, 1, 1},5
-//   {1, 0, 1, 1, 1, 1, 1},6
-//  {1, 1, 1, 0, 0, 0, 0},7
-//   {1, 1, 1, 1, 1, 1, 1},8
-//   {1, 1, 1, 0, 0, 1, 1}};9
+const uint8_t done[] = {
+  SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,  
+  SEG_B | SEG_C | SEG_D | SEG_E | SEG_G,          
+  SEG_A | SEG_D | SEG_E | SEG_F | SEG_G           
+  SEG_C | SEG_E | SEG_G,                          
+};
 
 int score = 0;
 int sequence[4] = { 0, 0, 0, 0 };
@@ -55,6 +38,10 @@ void setup() {
   }
 
   pinMode(buzzer, OUTPUT);
+
+  display.clear();
+  display.setBrightness(7);
+  display_digit(score);
 }
 
 void loop() {
@@ -75,11 +62,9 @@ void loop() {
     Serial.println("is game over");
     Serial.println(evaluateGame());
   }
-  // display_digit(score);
 }
 
 void generateSequence() {
-  // Generate a random sequence of 4 numbers
   for (int k = 0; k < 4; k++) {
     int randomNumber = random(4);
     sequence[k] = randomNumber;
@@ -113,8 +98,6 @@ int getInput() {
 
 void play() {
   Serial.println("playing");
-
-  //loop four times because four digits in the sequence needs four input
   bool correct = false;
   for (int k = 0; k < 4; k++) {
     Serial.println("to guess:");
@@ -148,21 +131,19 @@ void play() {
   if (correct == true) {
     score += 1;
   }
+  display_digit(score);
+
   delay(2000);
   Serial.println(score);
 }
 
-// void display_digit(int N){
-//   if (N > 9 || N < 0){
-//     for(int i = 0; i < 7; i++){
-//     digitalWrite(sevenSeg[i], 0); //off all when score is not sigle digit
-//   	}
-//   }else{
-//     for(int i = 0; i < 7; i++){
-//     digitalWrite(sevenSeg[i], sevenSegDigits[N % 10][i]);
-//   	}
-//   }
-// }
+void display_digit(int N) {
+  if (N > 9 || N < 0) {
+    display.setSegments(done);
+  } else {
+    display.showNumberDec(N);
+  }
+}
 
 bool evaluateGame() {
   return (score < 0 || score > 9);
