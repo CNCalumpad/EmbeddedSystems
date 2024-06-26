@@ -1,3 +1,11 @@
+#include <TM1637.h>
+
+#include <MD_MAX72xx.h>
+#include <SPI.h>
+
+#include <MD_MAX72xx.h>
+#include <SPI.h>
+
 #include <WiFi.h>
 #include "time.h"
 #include "esp_sntp.h"
@@ -14,15 +22,17 @@
 
 // pakilagyan ng pins
 
-#define MAX7219_DATA_PIN 
-#define MAX7219_CS_PIN   
-#define MAX7219_CLK_PIN 
-#define CLK 
-#define DIO  
+#define MAX7219_DATA_PIN 19
+#define MAX7219_CS_PIN 18
+#define MAX7219_CLK_PIN 5
+#define CLK 22
+#define DIO 23
+#define BTN 21
 
 
 
 MD_MAX72XX mx = MD_MAX72XX(MAX7219_CS_PIN, 1, MAX7219_CLK_PIN);
+TM1637Display display(CLK, DIO);
 
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -129,6 +139,8 @@ void setup() {
   }
   Serial.println(" CONNECTED");
 
+  pinMode(BTN, INPUT_PULLUP);
+  digitalRead(BTN) = BTNSTATE;
   mx.begin();
   mx.clear(); 
   delay(500);
@@ -207,4 +219,13 @@ void updatekomunatime(){
 }
 void loop() {
   updatekomunatime();
+  if (BTNSTATE = LOW){
+    displayUSTime();
+    displayUS();
+  }
+  else {
+    displayPHTime();
+    displayPH();
+  }
+  
 }
