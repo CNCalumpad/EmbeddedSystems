@@ -221,7 +221,7 @@ void updatekomunatime() {
 void loop() {
   updatekomunatime();
   // BTNSTATE = digitalRead(BTN);
-  if (digitalRead(BTN) = LOW) {
+  if (digitalRead(BTN) == LOW) {
     displayUSTime();
     displayUS();
   } else {
